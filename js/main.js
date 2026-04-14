@@ -1,11 +1,12 @@
 import { loadGLTF } from "../../../libs/loader.js";
+
 const THREE = window.MINDAR.IMAGE.THREE;
 
 async function startAR() {
 
+  // 🔥 EI imageTargetSrc → ei tarvita king.mind
   const mindARThreeJs = new window.MINDAR.IMAGE.MindARThree({
     container: document.body,
-    imageTargetSrc: "../../assets/targets/king.mind",
   });
 
   const { renderer, scene, camera } = mindARThreeJs;
@@ -15,12 +16,12 @@ async function startAR() {
   scene.add(light);
 
   // ROBOTTI
-  const robot = await loadGLTF("../../assets/models/robot/RobotExpressive.glb");
+  const robot = await loadGLTF("assets/models/robot/RobotExpressive.glb");
   robot.scene.scale.multiplyScalar(0.4);
-  robot.scene.position.set(0, -0.5, 0);
+  robot.scene.position.set(0, -0.5, -2);
 
-  const anchor = mindARThreeJs.addAnchor(0);
-  anchor.group.add(robot.scene);
+  // 🔥 LISÄTÄÄN SUORAAN SCENEEN
+  scene.add(robot.scene);
 
   // ANIMAATIOT
   const mixer = new THREE.AnimationMixer(robot.scene);
@@ -32,7 +33,7 @@ async function startAR() {
   const jumpAction = mixer.clipAction(robot.animations[3]);
   const dieAction = mixer.clipAction(robot.animations[1]);
 
-  // Rock gesture
+  // 🤘 ROCK animaatio
   const danceAction = mixer.clipAction(robot.animations[7]);
 
   dieAction.loop = THREE.LoopOnce;
@@ -83,19 +84,15 @@ async function startAR() {
   // 🤘 ROCK GESTURE
   const rockGesture = new fp.GestureDescription("rock");
 
-  // Etusormi
   rockGesture.addCurl(fp.Finger.Index, fp.FingerCurl.NoCurl, 1.0);
   rockGesture.addDirection(fp.Finger.Index, fp.FingerDirection.VerticalUp, 1.0);
 
-  // Pikkurilli
   rockGesture.addCurl(fp.Finger.Pinky, fp.FingerCurl.NoCurl, 1.0);
   rockGesture.addDirection(fp.Finger.Pinky, fp.FingerDirection.VerticalUp, 1.0);
 
-  // Keskisormi + nimetön
   rockGesture.addCurl(fp.Finger.Middle, fp.FingerCurl.FullCurl, 1.0);
   rockGesture.addCurl(fp.Finger.Ring, fp.FingerCurl.FullCurl, 1.0);
 
-  // Peukalo (vapaa)
   rockGesture.addCurl(fp.Finger.Thumb, fp.FingerCurl.HalfCurl, 0.5);
   rockGesture.addCurl(fp.Finger.Thumb, fp.FingerCurl.NoCurl, 0.5);
 
@@ -159,7 +156,7 @@ async function startAR() {
           fadeToAction(dieAction, 0.3);
         }
 
-        // 🤘 ROCK TRIGGER
+        // 🤘 ROCK
         if (bestConfindence.name === "rock") {
           fadeToAction(danceAction, 0.3);
         }
@@ -171,7 +168,7 @@ async function startAR() {
 
   window.requestAnimationFrame(detect);
 
-  // RENDER
+  // RENDER LOOP
   renderer.setAnimationLoop(() => {
     const delta = clock.getDelta();
     mixer.update(delta);
