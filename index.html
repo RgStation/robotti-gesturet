@@ -2,28 +2,31 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Robot Gestures</title>
+  <title>Robot Gesture</title>
   <style>
     body { margin: 0; overflow: hidden; }
   </style>
 </head>
 <body>
 
-  <!-- MindAR CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
+<!-- THREE -->
+<script src="https://unpkg.com/three@0.126.0/build/three.js"></script>
 
-  <script>
-    window.tf = window.MINDAR.IMAGE.tf;
-  </script>
+<!-- GLTF loader -->
+<script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
 
-  <!-- Handpose -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/handpose@0.1.0/dist/handpose.min.js"></script>
+<!-- Tensorflow -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
 
-  <!-- Fingerpose -->
-  <script src="https://cdn.jsdelivr.net/npm/fingerpose@0.1.0/dist/fingerpose.min.js"></script>
+<!-- Handpose -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/handpose"></script>
 
-  <script type="module" src="js/main.js"></script>
+<!-- Fingerpose -->
+<script src="https://cdn.jsdelivr.net/npm/fingerpose@0.1.0/dist/fingerpose.min.js"></script>
+
+<script src="js/main.js"></script>
 
 </body>
 </html>
