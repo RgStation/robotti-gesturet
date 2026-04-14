@@ -1,4 +1,16 @@
-import { loadGLTF } from "../../../libs/loader.js";
+import * as THREE from "https://unpkg.com/three@0.126.0/build/three.module.js";
+import { GLTFLoader } from "https://unpkg.com/three@0.126.0/examples/jsm/loaders/GLTFLoader.js";
+
+const loader = new THREE.GLTFLoader();
+
+const robotData = await new Promise((resolve) => {
+  loader.load(
+    "assets/models/robot/RobotExpressive.glb",
+    (gltf) => resolve(gltf)
+  );
+});
+
+const robot = robotData;
 
 const THREE = window.MINDAR.IMAGE.THREE;
 

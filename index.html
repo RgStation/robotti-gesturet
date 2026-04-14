@@ -1,30 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hand detection</title>
+  <title>Robot Gestures</title>
   <style>
-    body {
-      position: relative;
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100vh;
-      overflow: hidden;
-    }
+    body { margin: 0; overflow: hidden; }
   </style>
 </head>
-
 <body>
-  <script src="./libs/mindar/mindar-image-three.prod.js"></script>
+
+  <!-- MindAR CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
+
   <script>
     window.tf = window.MINDAR.IMAGE.tf;
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/handpose@0.1.0/dist/handpose.min.js"></script>
-  <script src="./libs/handpose/fingerpose.js"></script>
-  <script type="module" src="js/main.js"></script>
-</body>
 
+  <!-- Handpose -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/handpose@0.1.0/dist/handpose.min.js"></script>
+
+  <!-- Fingerpose -->
+  <script src="https://cdn.jsdelivr.net/npm/fingerpose@0.1.0/dist/fingerpose.min.js"></script>
+
+  <script type="module" src="js/main.js"></script>
+
+</body>
 </html>
