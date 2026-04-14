@@ -1,5 +1,6 @@
 let scene, camera, renderer;
-let robot, mixer, activeAction;
+let robot, mixer;
+let activeAction;
 
 init();
 
@@ -24,7 +25,11 @@ async function init() {
   });
 
   robot = gltf.scene;
-  robot.scale.set(0.5,0.5,0.5);
+
+  // 🔥 SIIRRETÄÄN ROBOTTI ALEMMAS
+  robot.scale.set(0.5, 0.5, 0.5);
+  robot.position.set(0, -1, 0);
+
   scene.add(robot);
 
   // ANIMAATIOT
@@ -35,6 +40,13 @@ async function init() {
 
   idle.play();
   activeAction = idle;
+
+  // 🔁 PALAUTUS IDLEEN
+  mixer.addEventListener("finished", () => {
+    idle.reset();
+    idle.play();
+    activeAction = idle;
+  });
 
   // 🤘 ROCK GESTURE
   const rockGesture = new fp.GestureDescription("rock");
@@ -48,14 +60,12 @@ async function init() {
   rockGesture.addCurl(fp.Finger.Middle, fp.FingerCurl.FullCurl, 1.0);
   rockGesture.addCurl(fp.Finger.Ring, fp.FingerCurl.FullCurl, 1.0);
 
-  rockGesture.addCurl(fp.Finger.Thumb, fp.FingerCurl.HalfCurl, 0.5);
-
   const estimator = new fp.GestureEstimator([rockGesture]);
 
-  // 📷 VIDEO (ETUKAMERA)
+  // 📷 KAMERA (ETU)
   const video = document.createElement("video");
   video.autoplay = true;
-  video.playsInline = true;
+  document.body.appendChild(video);
 
   const stream = await navigator.mediaDevices.getUserMedia({
     video: { facingMode: "user" }
@@ -63,18 +73,11 @@ async function init() {
 
   video.srcObject = stream;
 
-  // 🔥 NÄYTETÄÄN VIDEO RUUDULLA
-  video.style.position = "absolute";
-  video.style.top = "10px";
-  video.style.right = "10px";
-  video.style.width = "150px";
-  video.style.zIndex = "1";
-  document.body.appendChild(video);
-
-  // HANDPOSE
   const model = await handpose.load();
 
+  // 🔍 DETECT
   async function detect() {
+
     const hands = await model.estimateHands(video);
 
     if (hands.length > 0) {
@@ -83,17 +86,22 @@ async function init() {
 
       if (result.gestures.length > 0) {
 
-        const gesture = result.gestures.sort((a,b)=>b.confidence-a.confidence)[0];
+        const gesture = result.gestures[0].name;
+        console.log("Gesture:", gesture);
 
-        console.log("Gesture:", gesture.name);
+        // 🤘 ROCK → käynnistä animaatio
+        if (gesture === "rock" && activeAction === idle) {
 
-        if (gesture.name === "rock") {
+          console.log("ROCK TRIGGERED");
 
-          if (activeAction !== dance) {
-            activeAction.fadeOut(0.2);
-            activeAction = dance;
-            activeAction.reset().fadeIn(0.2).play();
-          }
+          idle.stop();
+
+          dance.reset();
+          dance.setLoop(THREE.LoopOnce);
+          dance.clampWhenFinished = true;
+          dance.play();
+
+          activeAction = dance;
         }
       }
     }
