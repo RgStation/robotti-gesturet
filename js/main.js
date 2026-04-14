@@ -1,6 +1,5 @@
 let scene, camera, renderer;
-let robot, mixer;
-let activeAction;
+let robot, mixer, activeAction;
 
 init();
 
@@ -34,42 +33,67 @@ async function init() {
   const idle = mixer.clipAction(gltf.animations[2]);
   const dance = mixer.clipAction(gltf.animations[7]);
 
-  activeAction = idle;
   idle.play();
+  activeAction = idle;
 
   // 🤘 ROCK GESTURE
   const rockGesture = new fp.GestureDescription("rock");
 
   rockGesture.addCurl(fp.Finger.Index, fp.FingerCurl.NoCurl, 1.0);
+  rockGesture.addDirection(fp.Finger.Index, fp.FingerDirection.VerticalUp, 1.0);
+
   rockGesture.addCurl(fp.Finger.Pinky, fp.FingerCurl.NoCurl, 1.0);
+  rockGesture.addDirection(fp.Finger.Pinky, fp.FingerDirection.VerticalUp, 1.0);
 
   rockGesture.addCurl(fp.Finger.Middle, fp.FingerCurl.FullCurl, 1.0);
   rockGesture.addCurl(fp.Finger.Ring, fp.FingerCurl.FullCurl, 1.0);
 
+  rockGesture.addCurl(fp.Finger.Thumb, fp.FingerCurl.HalfCurl, 0.5);
+
   const estimator = new fp.GestureEstimator([rockGesture]);
 
-  // HANDPOSE
+  // 📷 VIDEO (ETUKAMERA)
   const video = document.createElement("video");
   video.autoplay = true;
+  video.playsInline = true;
 
-  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: "user" }
+  });
+
   video.srcObject = stream;
 
+  // 🔥 NÄYTETÄÄN VIDEO RUUDULLA
+  video.style.position = "absolute";
+  video.style.top = "10px";
+  video.style.right = "10px";
+  video.style.width = "150px";
+  video.style.zIndex = "1";
+  document.body.appendChild(video);
+
+  // HANDPOSE
   const model = await handpose.load();
 
   async function detect() {
     const hands = await model.estimateHands(video);
 
     if (hands.length > 0) {
-      const result = estimator.estimate(hands[0].landmarks, 7.5);
+
+      const result = estimator.estimate(hands[0].landmarks, 6.5);
 
       if (result.gestures.length > 0) {
-        const gesture = result.gestures[0].name;
 
-        if (gesture === "rock") {
-          activeAction.stop();
-          activeAction = dance;
-          activeAction.reset().play();
+        const gesture = result.gestures.sort((a,b)=>b.confidence-a.confidence)[0];
+
+        console.log("Gesture:", gesture.name);
+
+        if (gesture.name === "rock") {
+
+          if (activeAction !== dance) {
+            activeAction.fadeOut(0.2);
+            activeAction = dance;
+            activeAction.reset().fadeIn(0.2).play();
+          }
         }
       }
     }
@@ -79,11 +103,12 @@ async function init() {
 
   detect();
 
-  animate();
-}
+  // RENDER LOOP
+  function animate() {
+    requestAnimationFrame(animate);
+    if (mixer) mixer.update(0.016);
+    renderer.render(scene, camera);
+  }
 
-function animate() {
-  requestAnimationFrame(animate);
-  if (mixer) mixer.update(0.016);
-  renderer.render(scene, camera);
+  animate();
 }
